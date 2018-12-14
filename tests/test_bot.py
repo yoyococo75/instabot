@@ -16,7 +16,7 @@ class TestBot:
         self.PASSWORD = 'test_password'
         self.FULLNAME = 'test_full_name'
         self.TOKEN = 'abcdef123456'
-        self.bot = Bot()
+        self.bot = Bot(database_path=":memory:")
         self.prepare_api(self.bot)
 
     def prepare_api(self, bot):
