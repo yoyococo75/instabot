@@ -4,8 +4,10 @@ import random
 import signal
 import time
 
+from peewee import IntegrityError
+
 from ..utils import db, utils
-from ..models import base, models
+from .. import models
 from ..api import API
 from .bot_archive import archive, archive_medias, unarchive_medias
 from .bot_block import block, block_bots, block_users, unblock, unblock_users
@@ -177,10 +179,10 @@ class Bot(object):
 
     def _init_db(self):
         database = db.DatabaseHelper.db_interface()
-        base.db.initialize(database)
-        self.database = base.db
+        models.base.db.initialize(database)
+        self.database = models.base.db
         self.database.connect()
-        self.database.create_tables(models)
+        self.database.create_tables(models.models)
 
     @property
     def user_id(self):
@@ -261,6 +263,21 @@ class Bot(object):
 
     def prepare(self):
         storage = load_checkpoint(self)
+
+        try:
+            self.user = models.InstabotUser.create(
+                username=self.username,
+                user_id=self.user_id,
+                password=self.password
+            )
+        except IntegrityError:
+            self.logger.info("User %s is already created in database", self.username)
+            self.user = models.InstabotUser.get(
+                username=self.username,
+                user_id=self.user_id,
+                password=self.password
+            )
+
         if storage is not None:
             self.total, self.api.total_requests, self.start_time = storage
 
