@@ -1,5 +1,6 @@
+from peewee import CharField, IntegerField
+
 from .base import BaseModel
-from peewee import IntegerField, CharField
 
 
 class User(BaseModel):

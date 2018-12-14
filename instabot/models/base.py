@@ -1,6 +1,6 @@
 from datetime import datetime
-from peewee import Model, DateTimeField, Proxy
 
+from peewee import DateTimeField, Model, Proxy
 
 db = Proxy()
 

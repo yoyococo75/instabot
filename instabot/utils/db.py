@@ -1,5 +1,7 @@
-from peewee import SqliteDatabase
 from os.path import expanduser, join
+
+from peewee import SqliteDatabase
+
 from .utils import mkdir_p
 
 
