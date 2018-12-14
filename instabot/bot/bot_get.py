@@ -184,7 +184,7 @@ def get_user_id_from_username(self, username):
             following_count=data["following_count"],
         )
 
-    self._usernames[username] = cached_user.user_id
+    self._usernames[username] = str(cached_user.user_id)
 
     return self._usernames[username]
 
