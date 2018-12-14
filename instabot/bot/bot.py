@@ -94,11 +94,12 @@ class Bot(object):
                  stop_words=('shop', 'store', 'free'),
                  blacklist_hashtags=['#shop', '#store', '#free'],
                  verbosity=True,
-                 device=None
+                 device=None,
+                 database_path=None
                  ):
         self.api = API(device=device)
 
-        self._init_db()
+        self._init_db(database_path)
 
         self.total = {'likes': 0,
                       'unlikes': 0,
@@ -177,8 +178,8 @@ class Bot(object):
         self.logger = self.api.logger
         self.logger.info('Instabot Started')
 
-    def _init_db(self):
-        database = db.DatabaseHelper.db_interface()
+    def _init_db(self, database_path):
+        database = db.DatabaseHelper.db_interface(database_path)
         models.base.db.initialize(database)
         self.database = models.base.db
         self.database.connect()

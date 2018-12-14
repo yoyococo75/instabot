@@ -10,8 +10,8 @@ class DatabaseHelper:
     DB_NAME = "database.db"
 
     @classmethod
-    def db_interface(cls):
-        db_path = cls.database_path()
+    def db_interface(cls, database_path):
+        db_path = database_path or cls.database_path()
 
         # create folders
         mkdir_p(cls.HOME)
