@@ -5,6 +5,8 @@
 
 from tqdm import tqdm
 
+from ..models import InstagramUser
+
 
 def get_media_owner(self, media_id):
     self.api.media_info(media_id)
@@ -160,13 +162,30 @@ def get_geotag_users(self, geotag):
 
 
 def get_user_id_from_username(self, username):
-    if username not in self._usernames:
+    cached_user = InstagramUser.select().where(InstagramUser.username == username).first()
+
+    if not cached_user:
         self.api.search_username(username)
         self.very_small_delay()
-        if "user" in self.api.last_json:
-            self._usernames[username] = str(self.api.last_json["user"]["pk"])
-        else:
+
+        if "user" not in self.api.last_json:
             return None
+
+        data = self.api.last_json["user"]
+
+        cached_user = InstagramUser.create(
+            user_id=data["pk"],
+            username=data["username"],
+            is_private=data["is_private"],
+            is_business=data["is_business"],
+            is_verified=data["is_verified"],
+            media_count=data["media_count"],
+            follower_count=data["follower_count"],
+            following_count=data["following_count"],
+        )
+
+    self._usernames[username] = cached_user.user_id
+
     return self._usernames[username]
 
 
