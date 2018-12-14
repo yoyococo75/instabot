@@ -4,7 +4,8 @@ import random
 import signal
 import time
 
-from .. import utils
+from ..utils import db, utils
+from ..models import base, models
 from ..api import API
 from .bot_archive import archive, archive_medias, unarchive_medias
 from .bot_block import block, block_bots, block_users, unblock, unblock_users
@@ -95,6 +96,8 @@ class Bot(object):
                  ):
         self.api = API(device=device)
 
+        self._init_db()
+
         self.total = {'likes': 0,
                       'unlikes': 0,
                       'follows': 0,
@@ -172,6 +175,13 @@ class Bot(object):
         self.logger = self.api.logger
         self.logger.info('Instabot Started')
 
+    def _init_db(self):
+        database = db.DatabaseHelper.db_interface()
+        base.db.initialize(database)
+        self.database = base.db
+        self.database.connect()
+        self.database.create_tables(models)
+
     @property
     def user_id(self):
         # For compatibility
@@ -237,6 +247,7 @@ class Bot(object):
         self.logger.info("Bot stopped. "
                          "Worked: %s", datetime.datetime.now() - self.start_time)
         self.print_counters()
+        self.database.close()
 
     def login(self, **args):
         if self.proxy:
