@@ -4,8 +4,6 @@ import random
 import signal
 import time
 
-from peewee import IntegrityError
-
 from ..utils import db, utils
 from .. import models
 from ..api import API
@@ -95,11 +93,13 @@ class Bot(object):
                  blacklist_hashtags=['#shop', '#store', '#free'],
                  verbosity=True,
                  device=None,
-                 database_path=None
+                 database_path=None,
+                 use_db=True
                  ):
         self.api = API(device=device)
 
         self._init_db(database_path)
+        self.use_db = use_db
 
         self.total = {'likes': 0,
                       'unlikes': 0,
@@ -255,6 +255,7 @@ class Bot(object):
     def login(self, **args):
         if self.proxy:
             args['proxy'] = self.proxy
+        args["use_db"] = self.use_db
         if self.api.login(**args) is False:
             return False
         self.prepare()
@@ -265,19 +266,18 @@ class Bot(object):
     def prepare(self):
         storage = load_checkpoint(self)
 
-        try:
-            self.user = models.InstabotUser.create(
-                username=self.username,
-                user_id=self.user_id,
-                password=self.password
+        if self.use_db:
+            self.user = (
+                models.InstabotUser.select()
+                .where(
+                    models.InstabotUser.username == self.username,
+                    models.InstabotUser.password == self.password
+                ).get()
             )
-        except IntegrityError:
-            self.logger.info("User %s is already created in database", self.username)
-            self.user = models.InstabotUser.get(
-                username=self.username,
-                user_id=self.user_id,
-                password=self.password
-            )
+
+            if not self.user.user_id:
+                self.user.user_id = self.user_id
+                self.user.save()
 
         if storage is not None:
             self.total, self.api.total_requests, self.start_time = storage

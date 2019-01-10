@@ -58,9 +58,9 @@ class API(object):
         self.uuid = self.generate_UUID(uuid_type=True)
 
     def login(self, username=None, password=None, force=False, proxy=None,
-              use_cookie=True, cookie_fname='cookie.txt'):
+              use_cookie=True, cookie_fname='cookie.txt', use_db=False):
         if password is None:
-            username, password = get_credentials(username=username)
+            username, password = get_credentials(username=username, use_db=use_db)
 
         self.device_id = self.generate_device_id(self.get_seed(username, password))
         self.proxy = proxy
@@ -104,7 +104,7 @@ class API(object):
                     return True
                 else:
                     self.logger.info("Username or password is incorrect.")
-                    delete_credentials()
+                    delete_credentials(use_db=use_db)
                     return False
 
     def load_cookie(self, fname):
