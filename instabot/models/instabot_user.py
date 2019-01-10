@@ -7,6 +7,6 @@ class InstabotUser(BaseModel):
     """
     Instabot user is used for authentication and using Instabot
     """
-    user_id = IntegerField(unique=True)
+    user_id = IntegerField(unique=True, null=True)
     username = CharField(unique=True)
     password = CharField()
