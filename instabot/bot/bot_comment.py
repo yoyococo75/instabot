@@ -17,11 +17,7 @@ def comment(self, media_id, comment_text):
         return True
     if not self.reached_limit('comments'):
         self.delay('comment')
-        _r = self.api.comment(media_id, comment_text)
-        if _r == 'feedback_required':
-            self.logger.error("`Comment` action has been BLOCKED...!!!")
-            return False
-        if _r:
+        if self.api.comment(media_id, comment_text):
             self.total['comments'] += 1
             return True
     else:
@@ -41,11 +37,7 @@ def reply_to_comment(self, media_id, comment_text, parent_comment_id):
         if comment_text.split(' ')[0][1:] == self.get_username_from_user_id(self.user_id):
             self.logger.error("You can't reply to yourself")
             return False
-        _r = self.api.reply_to_comment(media_id, comment_text, parent_comment_id)
-        if _r == 'feedback_required':
-            self.logger.error("`Comment` action has been BLOCKED...!!!")
-            return False
-        if _r:
+        if self.api.reply_to_comment(media_id, comment_text, parent_comment_id):
             self.total['comments'] += 1
             return True
     else:
